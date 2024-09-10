@@ -1,6 +1,6 @@
 name: flutter_mapbox_animaker
 description: "A Flutter package for smoothly animating markers with position and rotation on Mapbox maps, ideal for tracking real-time movement like vehicles or users images."
-version: 0.0.5
+version: 0.0.6
 repository: https://github.com/sKY02644/flutter_mapbox_animaker
 
 environment:
@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   mapbox_maps_flutter: ^2.2.0
+  image: ^4.2.0
 
 dev_dependencies:
   flutter_test:

@@ -45,7 +45,7 @@ void main() {
 
       await vehicleAnimator.addMarkerPoint(
           "${markerId}2", url, preCalculatedData);
-      await vehicleAnimator.removeMarker();
+      await vehicleAnimator.removeMarker("${markerId}2");
       expect(vehicleAnimator.markerPoints.containsKey("${markerId}2"), false);
     });
 

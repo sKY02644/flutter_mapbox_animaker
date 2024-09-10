@@ -5,6 +5,7 @@ import 'package:flutter/animation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'utils/common.dart';
+import 'dart:developer';
 
 /// Class to animate markers on a Mapbox map.
 class MarkerAnimator extends TickerProvider {
@@ -23,30 +24,6 @@ class MarkerAnimator extends TickerProvider {
   // ID of the last layer added.
   String? _lastLayerId;
 
-  // Marker ID for the current marker.
-  String? markerId;
-
-  // Image path for the marker icon.
-  String? markerImage;
-
-  // Animation interval for marker transition, default is 0.02 seconds.
-  double? interval;
-
-  // Width of the marker image.
-  int? imageWidth;
-
-  // Height of the marker image.
-  int? imageHeight;
-
-  // Animation curve for position transition.
-  Curve? positionCurve;
-
-  // Animation curve for rotation transition.
-  Curve? rotationCurve;
-
-  // Properties for customizing the marker style.
-  Map<String, dynamic>? properties;
-
   late Ticker _ticker;
 
   /// A map storing animation controllers for markers.
@@ -57,10 +34,6 @@ class MarkerAnimator extends TickerProvider {
 
   /// A map storing rotation animations for markers.
   final Map<String, Animation<double>> _rotationAnimation = {};
-
-  Duration? animationDuration;
-
-  double? scale;
 
   @override
   Ticker createTicker(TickerCallback onTick) {
@@ -76,21 +49,17 @@ class MarkerAnimator extends TickerProvider {
   /// - [markerId]: A unique identifier for the marker.
   /// - [markerImage]: The path to the image file to be used as the marker icon.
   /// - [data]: A list of position and rotation data for the marker animation {position: [double, double], rotation: double}[].
-  /// - [interval]: (Optional) Time interval between animation frames.
-  /// - [imageWidth]: (Optional) Width of the marker image.
-  /// - [imageHeight]: (Optional) Height of the marker image.
   /// - [properties]: (Optional) Custom properties for marker style.
+  /// - [scale]: (optional) A scale factor for the image.
+  /// - [animationDuration]: (optional) How long the animation should last.
   /// - [positionCurve]: (optional) Custom curve for position animations.
   /// - [rotationCurve]: (optional) Custom curve for rotation animations.
   Future<void> addMarkerPoint(
     String markerId,
     String markerImage,
     List<Map<String, dynamic>> data, {
-    double interval = 0.02,
-    Duration animationDuration = const Duration(milliseconds: 1000),
+    int animationDuration = 50,
     double scale = 15,
-    int imageWidth = 500,
-    int imageHeight = 500,
     Map<String, dynamic> properties = const {
       "icon-opacity": 1.0,
       "icon-size": 1.0,
@@ -103,31 +72,27 @@ class MarkerAnimator extends TickerProvider {
     Curve rotationCurve = Curves.linear,
   }) async {
     try {
-      this.markerId = markerId;
-      this.markerImage = markerImage;
-      this.scale = scale;
-      this.imageHeight = imageHeight;
-      this.imageWidth = imageWidth;
-      this.interval = interval;
-      this.animationDuration = animationDuration;
-      this.properties = properties;
-      this.positionCurve = positionCurve;
-      this.rotationCurve = rotationCurve;
-
       // Store marker points (positions and rotations).
-      markerPoints.putIfAbsent(this.markerId!, () => []);
+      markerPoints.putIfAbsent(markerId, () => []);
       for (var data in data) {
         Point newPoint = Point(
             coordinates: Position(data['position'][0], data['position'][1]));
         num rotation = data['rotation'];
-        markerPoints[this.markerId]
-            ?.add({'point': newPoint, 'rotation': rotation});
+        markerPoints[markerId]?.add({'point': newPoint, 'rotation': rotation});
       }
 
       // Initialize the marker stream if it doesn't exist.
       if (!_locationStreamControllers.containsKey(markerId) &&
-          markerPoints[this.markerId]!.length > 2) {
-        await _initializeMarkerStreams();
+          markerPoints[markerId]!.length > 2) {
+        await _initializeMarkerStreams(
+          markerId: markerId,
+          markerImage: markerImage,
+          properties: properties,
+          scale: scale,
+          animationDuration: animationDuration,
+          positionCurve: positionCurve,
+          rotationCurve: rotationCurve,
+        );
       }
 
       // Trigger the stream to start the animation.
@@ -138,7 +103,7 @@ class MarkerAnimator extends TickerProvider {
   }
 
   /// Removes a marker marker from the map.
-  Future<void> removeMarker() async {
+  Future<void> removeMarker(String markerId) async {
     // Remove marker points and close the location stream.
     try {
       markerPoints.remove(markerId);
@@ -166,7 +131,15 @@ class MarkerAnimator extends TickerProvider {
   }
 
   /// Initializes the stream for animating the marker markers.
-  Future<void> _initializeMarkerStreams() async {
+  Future<void> _initializeMarkerStreams({
+    required String markerId,
+    required String markerImage,
+    required double scale,
+    required int animationDuration,
+    required Map<String, dynamic> properties,
+    required Curve positionCurve,
+    required Curve rotationCurve,
+  }) async {
     try {
       List<Map<String, dynamic>> points = markerPoints[markerId]!;
 
@@ -175,7 +148,7 @@ class MarkerAnimator extends TickerProvider {
       String sourceId = 'source-$markerId';
 
       if (!markerLayerIds.containsKey(markerId)) {
-        Uint8List? imgU8List = await loadImageAsUint8List(markerImage!);
+        Uint8List? imgU8List = await loadImageAsUint8List(markerImage);
         Point point = points.first['point'];
         num rotation = points.first['rotation'];
         var source = {
@@ -188,11 +161,16 @@ class MarkerAnimator extends TickerProvider {
             }
           }
         };
+        var imageSize = await getImageSizeFromBytes(imgU8List!);
+        var width = imageSize['width']?.toInt();
+        var height = imageSize['height']?.toInt();
+
+        log("WIDTH: $width HEIGHT: $height");
+
         await mapboxMap.style.addStyleImage(
             iconId,
-            15,
-            MbxImage(
-                width: imageHeight!, height: imageWidth!, data: imgU8List!),
+            scale,
+            MbxImage(width: width!, height: height!, data: imgU8List),
             false,
             [],
             [],
@@ -218,15 +196,16 @@ class MarkerAnimator extends TickerProvider {
           ),
         );
         _lastLayerId = layerId;
-        markerLayerIds[markerId!] = layerId;
+        markerLayerIds[markerId] = layerId;
       }
 
       // Listen for animation events and animate the marker when new points are available.
       final controller = StreamController<String>();
-      _locationStreamControllers[markerId!] = controller;
-      _locationStreamControllers[markerId!]?.stream.asyncMap((_) async {
+      _locationStreamControllers[markerId] = controller;
+      _locationStreamControllers[markerId]?.stream.asyncMap((_) async {
         if (markerPoints[markerId]!.length > 1) {
-          await _animateMarkerWithAnimation();
+          await _animateMarkerWithAnimation(
+              markerId, animationDuration, positionCurve, rotationCurve);
         }
       }).listen((_) {});
     } on Exception catch (_) {
@@ -234,7 +213,12 @@ class MarkerAnimator extends TickerProvider {
     }
   }
 
-  Future<void> _animateMarkerWithAnimation() async {
+  Future<void> _animateMarkerWithAnimation(
+    String markerId,
+    int animationDuration,
+    Curve positionCurve,
+    Curve rotationCurve,
+  ) async {
     try {
       List<Map<String, dynamic>> points = markerPoints[markerId]!;
 
@@ -247,29 +231,31 @@ class MarkerAnimator extends TickerProvider {
         Point startPoint = points[i]['point'];
         Point endPoint = points[i + 1]['point'];
 
+        log("DURATION: $animationDuration");
+        Duration duration = Duration(milliseconds: animationDuration);
         // Create AnimationController and Tween for position and rotation
-        _controller[markerId!] =
-            AnimationController(duration: animationDuration, vsync: this);
+        _controller[markerId] =
+            AnimationController(duration: duration, vsync: this);
         double startRotation = points[i]['rotation'].toDouble();
         double endRotation = points[i + 1]['rotation'].toDouble();
 
         // Normalize the end rotation to avoid jumps
         endRotation = normalizeRotation(startRotation, endRotation);
 
-        _positionAnimation[markerId!] = Tween<Offset>(
+        _positionAnimation[markerId] = Tween<Offset>(
           begin: Offset(startPoint.coordinates[0]!.toDouble(),
               startPoint.coordinates[1]!.toDouble()),
           end: Offset(endPoint.coordinates[0]!.toDouble(),
               endPoint.coordinates[1]!.toDouble()),
         ).animate(
-          _controller[markerId]!.drive(CurveTween(curve: positionCurve!)),
+          _controller[markerId]!.drive(CurveTween(curve: positionCurve)),
         );
 
-        _rotationAnimation[markerId!] = Tween<double>(
+        _rotationAnimation[markerId] = Tween<double>(
           begin: startRotation,
           end: endRotation,
         ).animate(
-          _controller[markerId]!.drive(CurveTween(curve: rotationCurve!)),
+          _controller[markerId]!.drive(CurveTween(curve: rotationCurve)),
         );
 
         // Add a listener to the animation to update the marker position and rotation

@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:image/image.dart' as img;
 
 Future<Uint8List?> loadImageAsUint8List(String assetPath) async {
   try {
@@ -33,5 +34,16 @@ Future<Size> getImageSizeFromAssets(String assetPath) async {
   final codec = await instantiateImageCodec(data.buffer.asUint8List());
   final frameInfo = await codec.getNextFrame();
   return Size(
-      frameInfo.image.width.toDouble(), frameInfo.image.height.toDouble());
+    frameInfo.image.width.toDouble(),
+    frameInfo.image.height.toDouble(),
+  );
+}
+
+Future<Map<String, double>> getImageSizeFromBytes(Uint8List bytes) async {
+  img.Image? image = img.decodeImage(bytes);
+  if (image != null) {
+    return {"width": image.width.toDouble(), "height": image.height.toDouble()};
+  } else {
+    throw Exception("Unable to decode image");
+  }
 }

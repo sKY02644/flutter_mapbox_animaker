@@ -17,3 +17,7 @@
 # 0.0.5
 
 - Removed image width and height params
+
+# 0.0.6
+
+- Minor fixes
