@@ -65,6 +65,8 @@ class MarkerAnimator extends TickerProvider {
   /// A map storing rotation animations for markers.
   final Map<String, Animation<double>> _rotationAnimation = {};
 
+  Duration animationDuration = Duration(milliseconds: 1000.toInt());
+
   @override
   Ticker createTicker(TickerCallback onTick) {
     _ticker = Ticker(onTick);
@@ -90,6 +92,7 @@ class MarkerAnimator extends TickerProvider {
     String markerImage,
     List<Map<String, dynamic>> data, {
     double? interval,
+    Duration? animationDuration,
     int? imageWidth,
     int? imageHeight,
     Map<String, dynamic>? properties,
@@ -102,6 +105,7 @@ class MarkerAnimator extends TickerProvider {
       this.imageHeight = imageHeight ?? this.imageHeight;
       this.imageWidth = imageWidth ?? this.imageWidth;
       this.interval = interval ?? this.interval;
+      this.animationDuration = animationDuration ?? this.animationDuration;
       this.properties = properties ?? this.properties;
       this.positionCurve = positionCurve ?? this.positionCurve;
       this.rotationCurve = rotationCurve ?? this.rotationCurve;
@@ -223,8 +227,6 @@ class MarkerAnimator extends TickerProvider {
       for (int i = 0; i < points.length - 1; i++) {
         Point startPoint = points[i]['point'];
         Point endPoint = points[i + 1]['point'];
-
-        Duration animationDuration = Duration(milliseconds: (interval! * 1000).toInt());
 
         // Create AnimationController and Tween for position and rotation
         controller[markerId!] = AnimationController(duration: animationDuration, vsync: this);
