@@ -65,7 +65,7 @@ class MarkerAnimator extends TickerProvider {
   /// A map storing rotation animations for markers.
   final Map<String, Animation<double>> _rotationAnimation = {};
 
-  Duration animationDuration = Duration(milliseconds: 1000.toInt());
+  Duration animationDuration = const Duration(milliseconds: 1000);
 
   @override
   Ticker createTicker(TickerCallback onTick) {
