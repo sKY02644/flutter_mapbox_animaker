@@ -29,4 +29,8 @@ migrate_working_dir/
 build/
 .flutter-plugins
 .flutter-plugins-dependencies
+<<<<<<< HEAD
 .packages
+=======
+.packages
+>>>>>>> dev
