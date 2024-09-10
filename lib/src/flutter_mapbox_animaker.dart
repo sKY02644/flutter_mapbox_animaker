@@ -30,34 +30,27 @@ class MarkerAnimator extends TickerProvider {
   String? markerImage;
 
   // Animation interval for marker transition, default is 0.02 seconds.
-  double? interval = 0.02;
+  double? interval;
 
   // Width of the marker image.
-  int? imageWidth = 500;
+  int? imageWidth;
 
   // Height of the marker image.
-  int? imageHeight = 500;
+  int? imageHeight;
 
   // Animation curve for position transition.
-  Curve? positionCurve = Curves.linear;
+  Curve? positionCurve;
 
   // Animation curve for rotation transition.
-  Curve? rotationCurve = Curves.linear;
+  Curve? rotationCurve;
 
   // Properties for customizing the marker style.
-  Map<String, dynamic>? properties = {
-    "icon-opacity": 1.0,
-    "icon-size": 1.0,
-    "icon-anchor": "center",
-    "icon-offset": [0.5, 0.5],
-    'icon-allow-overlap': true,
-    'icon-ignore-placement': true,
-  };
+  Map<String, dynamic>? properties;
 
   late Ticker _ticker;
 
   /// A map storing animation controllers for markers.
-  final Map<String, AnimationController> controller = {};
+  final Map<String, AnimationController> _controller = {};
 
   /// A map storing position animations for markers.
   final Map<String, Animation<Offset>> _positionAnimation = {};
@@ -65,7 +58,9 @@ class MarkerAnimator extends TickerProvider {
   /// A map storing rotation animations for markers.
   final Map<String, Animation<double>> _rotationAnimation = {};
 
-  Duration animationDuration = const Duration(milliseconds: 1000);
+  Duration? animationDuration;
+
+  double? scale;
 
   @override
   Ticker createTicker(TickerCallback onTick) {
@@ -91,24 +86,33 @@ class MarkerAnimator extends TickerProvider {
     String markerId,
     String markerImage,
     List<Map<String, dynamic>> data, {
-    double? interval,
-    Duration? animationDuration,
-    int? imageWidth,
-    int? imageHeight,
-    Map<String, dynamic>? properties,
-    Curve? positionCurve,
-    Curve? rotationCurve,
+    double interval = 0.02,
+    Duration animationDuration = const Duration(milliseconds: 1000),
+    double scale = 15,
+    int imageWidth = 500,
+    int imageHeight = 500,
+    Map<String, dynamic> properties = const {
+      "icon-opacity": 1.0,
+      "icon-size": 1.0,
+      "icon-anchor": "center",
+      "icon-offset": [0.5, 0.5],
+      'icon-allow-overlap': true,
+      'icon-ignore-placement': true,
+    },
+    Curve positionCurve = Curves.linear,
+    Curve rotationCurve = Curves.linear,
   }) async {
     try {
       this.markerId = markerId;
       this.markerImage = markerImage;
-      this.imageHeight = imageHeight ?? this.imageHeight;
-      this.imageWidth = imageWidth ?? this.imageWidth;
-      this.interval = interval ?? this.interval;
-      this.animationDuration = animationDuration ?? this.animationDuration;
-      this.properties = properties ?? this.properties;
-      this.positionCurve = positionCurve ?? this.positionCurve;
-      this.rotationCurve = rotationCurve ?? this.rotationCurve;
+      this.scale = scale;
+      this.imageHeight = imageHeight;
+      this.imageWidth = imageWidth;
+      this.interval = interval;
+      this.animationDuration = animationDuration;
+      this.properties = properties;
+      this.positionCurve = positionCurve;
+      this.rotationCurve = rotationCurve;
 
       // Store marker points (positions and rotations).
       markerPoints.putIfAbsent(this.markerId!, () => []);
@@ -179,7 +183,7 @@ class MarkerAnimator extends TickerProvider {
             }
           }
         };
-        await mapboxMap.style.addStyleImage(iconId, 15, MbxImage(width: 500, height: 500, data: imgU8List!), false, [], [], null);
+        await mapboxMap.style.addStyleImage(iconId, 15, MbxImage(width: imageHeight!, height: imageWidth!, data: imgU8List!), false, [], [], null);
         await mapboxMap.style.addStyleSource(sourceId, json.encode(source));
         LayerPosition layerPosition = LayerPosition(below: _lastLayerId);
         await mapboxMap.style.addStyleLayer(json.encode({"id": layerId, "type": "symbol", "source": sourceId}), layerPosition);
@@ -229,7 +233,7 @@ class MarkerAnimator extends TickerProvider {
         Point endPoint = points[i + 1]['point'];
 
         // Create AnimationController and Tween for position and rotation
-        controller[markerId!] = AnimationController(duration: animationDuration, vsync: this);
+        _controller[markerId!] = AnimationController(duration: animationDuration, vsync: this);
         double startRotation = points[i]['rotation'].toDouble();
         double endRotation = points[i + 1]['rotation'].toDouble();
 
@@ -240,18 +244,18 @@ class MarkerAnimator extends TickerProvider {
           begin: Offset(startPoint.coordinates[0]!.toDouble(), startPoint.coordinates[1]!.toDouble()),
           end: Offset(endPoint.coordinates[0]!.toDouble(), endPoint.coordinates[1]!.toDouble()),
         ).animate(
-          controller[markerId]!.drive(CurveTween(curve: positionCurve!)),
+          _controller[markerId]!.drive(CurveTween(curve: positionCurve!)),
         );
 
         _rotationAnimation[markerId!] = Tween<double>(
           begin: startRotation,
           end: endRotation,
         ).animate(
-          controller[markerId]!.drive(CurveTween(curve: rotationCurve!)),
+          _controller[markerId]!.drive(CurveTween(curve: rotationCurve!)),
         );
 
         // Add a listener to the animation to update the marker position and rotation
-        controller[markerId]!.addListener(() async {
+        _controller[markerId]!.addListener(() async {
           var source = {
             "type": "geojson",
             "data": {
@@ -271,8 +275,8 @@ class MarkerAnimator extends TickerProvider {
         });
 
         // Start the animation
-        await controller[markerId]!.forward();
-        controller[markerId]!.dispose(); // Dispose the controller after each iteration
+        await _controller[markerId]!.forward();
+        _controller[markerId]!.dispose(); // Dispose the controller after each iteration
       }
       markerPoints[markerId]!.clear();
     } on Exception catch (_) {

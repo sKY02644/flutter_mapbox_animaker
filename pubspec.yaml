@@ -1,6 +1,6 @@
 name: flutter_mapbox_animaker
 description: "A Flutter package for animating markers on a Mapbox map."
-version: 0.0.2
+version: 0.0.3
 repository: https://github.com/sKY02644/flutter_mapbox_animaker
 
 environment:
