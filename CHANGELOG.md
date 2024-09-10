@@ -25,3 +25,7 @@
 # 0.0.7
 
 - Package rename
+
+# 0.0.8
+
+- Package rename
