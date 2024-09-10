@@ -137,7 +137,13 @@ class MarkerAnimator extends TickerProvider {
     required Curve rotationCurve,
   }) async {
     try {
-      List<Map<String, dynamic>> points = markerPoints[markerId]!;
+      List<Map<String, dynamic>>? points = markerPoints[markerId];
+
+      if (points == null) {
+        // ignore: avoid_print
+        print("No location points found for marker $markerId");
+        return;
+      }
 
       String iconId = 'icon-$markerId';
       String layerId = 'layer-$markerId';
@@ -157,13 +163,23 @@ class MarkerAnimator extends TickerProvider {
             }
           }
         };
-        var imageSize = await getImageSizeFromBytes(imgU8List!);
+        // Image not found, skip this marker.
+        if (imgU8List == null) {
+          // ignore: avoid_print
+          print("Image $markerImage not found");
+          return;
+        }
+        var imageSize = await getImageSizeFromBytes(imgU8List);
         var width = imageSize['width']?.toInt();
         var height = imageSize['height']?.toInt();
 
-        log("WIDTH: $width HEIGHT: $height");
+        if (width == null || height == null) {
+          // ignore: avoid_print
+          print("Image $markerImage has invalid size");
+          return;
+        }
 
-        await mapboxMap.style.addStyleImage(iconId, scale, MbxImage(width: width!, height: height!, data: imgU8List), false, [], [], null);
+        await mapboxMap.style.addStyleImage(iconId, scale, MbxImage(width: width, height: height, data: imgU8List), false, [], [], null);
         await mapboxMap.style.addStyleSource(sourceId, json.encode(source));
         LayerPosition layerPosition = LayerPosition(below: _lastLayerId);
         await mapboxMap.style.addStyleLayer(json.encode({"id": layerId, "type": "symbol", "source": sourceId}), layerPosition);
