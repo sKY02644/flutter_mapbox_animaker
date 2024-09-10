@@ -40,8 +40,6 @@ markerAnimator.addMarkerPoint(
     // Add more positions as needed
   ],
   interval: 0.05,  // Optional: interval between animation frames
-  imageWidth: 64,   // Optional: width of the marker image
-  imageHeight: 64,  // Optional: height of the marker image
   properties: {
     "icon-opacity": 0.9,
     "icon-size": 1.2,

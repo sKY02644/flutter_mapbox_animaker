@@ -13,3 +13,7 @@
 # 0.0.4
 
 - Removed image width and height params
+
+# 0.0.5
+
+- Removed image width and height params

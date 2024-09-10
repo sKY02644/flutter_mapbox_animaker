@@ -32,5 +32,6 @@ Future<Size> getImageSizeFromAssets(String assetPath) async {
   final ByteData data = await rootBundle.load(assetPath);
   final codec = await instantiateImageCodec(data.buffer.asUint8List());
   final frameInfo = await codec.getNextFrame();
-  return Size(frameInfo.image.width.toDouble(), frameInfo.image.height.toDouble());
+  return Size(
+      frameInfo.image.width.toDouble(), frameInfo.image.height.toDouble());
 }
