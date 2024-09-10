@@ -5,3 +5,7 @@
 # 0.0.2
 
 - Change default animation duration
+
+# 0.0.3
+
+- Change animation rotation/position curve
