@@ -21,7 +21,7 @@ To use this package, add the following dependencies to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_mapbox_animaker: ^0.0.1
+  flutter_mapbox_animarker: ^0.0.1
   <your_other_dependencies>
 ```
 

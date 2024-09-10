@@ -21,3 +21,7 @@
 # 0.0.6
 
 - Minor fixes
+
+# 0.0.7
+
+- Package rename

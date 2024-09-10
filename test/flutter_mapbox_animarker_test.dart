@@ -1,5 +1,5 @@
+import 'package:flutter_mapbox_animarker/flutter_mapbox_animarker.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_mapbox_animaker/flutter_mapbox_animaker.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
@@ -43,8 +43,7 @@ void main() {
         },
       ];
 
-      await vehicleAnimator.addMarkerPoint(
-          "${markerId}2", url, preCalculatedData);
+      await vehicleAnimator.addMarkerPoint("${markerId}2", url, preCalculatedData);
       await vehicleAnimator.removeMarker("${markerId}2");
       expect(vehicleAnimator.markerPoints.containsKey("${markerId}2"), false);
     });
@@ -57,8 +56,7 @@ void main() {
         },
       ];
 
-      await vehicleAnimator.addMarkerPoint(
-          "${markerId}3", url, preCalculatedData);
+      await vehicleAnimator.addMarkerPoint("${markerId}3", url, preCalculatedData);
       expect(vehicleAnimator.markerPoints["${markerId}3"]!.isNotEmpty, true);
     });
 
@@ -69,17 +67,10 @@ void main() {
           'rotation': 45
         },
       ];
-      await vehicleAnimator.addMarkerPoint(
-          "${markerId}4", url, preCalculatedData);
+      await vehicleAnimator.addMarkerPoint("${markerId}4", url, preCalculatedData);
       expect(vehicleAnimator.markerPoints["${markerId}4"]!.isNotEmpty, true);
-      expect(
-          vehicleAnimator
-              .markerPoints["${markerId}4"]![0]['point'].coordinates[0],
-          30.0);
-      expect(
-          vehicleAnimator
-              .markerPoints["${markerId}4"]![0]['point'].coordinates[1],
-          50.0);
+      expect(vehicleAnimator.markerPoints["${markerId}4"]![0]['point'].coordinates[0], 30.0);
+      expect(vehicleAnimator.markerPoints["${markerId}4"]![0]['point'].coordinates[1], 50.0);
       expect(vehicleAnimator.markerPoints["${markerId}4"]![0]['rotation'], 45);
     });
   });
