@@ -34,7 +34,8 @@ void main() {
         },
       ];
 
-      await vehicleAnimator.addMarkerPoint(markerId, url, preCalculatedData, imageWidth: imageWidth, imageHeight: imageHeight);
+      await vehicleAnimator.addMarkerPoint(markerId, url, preCalculatedData,
+          imageWidth: imageWidth, imageHeight: imageHeight);
       expect(vehicleAnimator.markerPoints.containsKey(markerId), true);
       expect(vehicleAnimator.markerPoints[markerId]!.length, 1);
     });
@@ -47,7 +48,9 @@ void main() {
         },
       ];
 
-      await vehicleAnimator.addMarkerPoint("${markerId}2", url, preCalculatedData, imageWidth: imageWidth, imageHeight: imageHeight);
+      await vehicleAnimator.addMarkerPoint(
+          "${markerId}2", url, preCalculatedData,
+          imageWidth: imageWidth, imageHeight: imageHeight);
       await vehicleAnimator.removeMarker();
       expect(vehicleAnimator.markerPoints.containsKey("${markerId}2"), false);
     });
@@ -60,7 +63,9 @@ void main() {
         },
       ];
 
-      await vehicleAnimator.addMarkerPoint("${markerId}3", url, preCalculatedData, imageWidth: imageWidth, imageHeight: imageHeight);
+      await vehicleAnimator.addMarkerPoint(
+          "${markerId}3", url, preCalculatedData,
+          imageWidth: imageWidth, imageHeight: imageHeight);
       expect(vehicleAnimator.markerPoints["${markerId}3"]!.isNotEmpty, true);
     });
 
@@ -71,10 +76,18 @@ void main() {
           'rotation': 45
         },
       ];
-      await vehicleAnimator.addMarkerPoint("${markerId}4", url, preCalculatedData, imageWidth: imageWidth, imageHeight: imageHeight);
+      await vehicleAnimator.addMarkerPoint(
+          "${markerId}4", url, preCalculatedData,
+          imageWidth: imageWidth, imageHeight: imageHeight);
       expect(vehicleAnimator.markerPoints["${markerId}4"]!.isNotEmpty, true);
-      expect(vehicleAnimator.markerPoints["${markerId}4"]![0]['point'].coordinates[0], 30.0);
-      expect(vehicleAnimator.markerPoints["${markerId}4"]![0]['point'].coordinates[1], 50.0);
+      expect(
+          vehicleAnimator
+              .markerPoints["${markerId}4"]![0]['point'].coordinates[0],
+          30.0);
+      expect(
+          vehicleAnimator
+              .markerPoints["${markerId}4"]![0]['point'].coordinates[1],
+          50.0);
       expect(vehicleAnimator.markerPoints["${markerId}4"]![0]['rotation'], 45);
     });
   });

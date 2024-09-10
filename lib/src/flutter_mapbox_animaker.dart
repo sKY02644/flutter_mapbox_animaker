@@ -117,13 +117,16 @@ class MarkerAnimator extends TickerProvider {
       // Store marker points (positions and rotations).
       markerPoints.putIfAbsent(this.markerId!, () => []);
       for (var data in data) {
-        Point newPoint = Point(coordinates: Position(data['position'][0], data['position'][1]));
+        Point newPoint = Point(
+            coordinates: Position(data['position'][0], data['position'][1]));
         num rotation = data['rotation'];
-        markerPoints[this.markerId]?.add({'point': newPoint, 'rotation': rotation});
+        markerPoints[this.markerId]
+            ?.add({'point': newPoint, 'rotation': rotation});
       }
 
       // Initialize the marker stream if it doesn't exist.
-      if (!_locationStreamControllers.containsKey(markerId) && markerPoints[this.markerId]!.length > 2) {
+      if (!_locationStreamControllers.containsKey(markerId) &&
+          markerPoints[this.markerId]!.length > 2) {
         await _initializeMarkerStreams();
       }
 
@@ -152,7 +155,9 @@ class MarkerAnimator extends TickerProvider {
 
         // Update the last layer ID if necessary.
         if (_lastLayerId == layerId) {
-          _lastLayerId = markerLayerIds.values.isNotEmpty ? markerLayerIds.values.last : null;
+          _lastLayerId = markerLayerIds.values.isNotEmpty
+              ? markerLayerIds.values.last
+              : null;
         }
       }
     } on Exception catch (_) {
@@ -183,10 +188,20 @@ class MarkerAnimator extends TickerProvider {
             }
           }
         };
-        await mapboxMap.style.addStyleImage(iconId, 15, MbxImage(width: imageHeight!, height: imageWidth!, data: imgU8List!), false, [], [], null);
+        await mapboxMap.style.addStyleImage(
+            iconId,
+            15,
+            MbxImage(
+                width: imageHeight!, height: imageWidth!, data: imgU8List!),
+            false,
+            [],
+            [],
+            null);
         await mapboxMap.style.addStyleSource(sourceId, json.encode(source));
         LayerPosition layerPosition = LayerPosition(below: _lastLayerId);
-        await mapboxMap.style.addStyleLayer(json.encode({"id": layerId, "type": "symbol", "source": sourceId}), layerPosition);
+        await mapboxMap.style.addStyleLayer(
+            json.encode({"id": layerId, "type": "symbol", "source": sourceId}),
+            layerPosition);
         await mapboxMap.style.setStyleLayerProperties(
           layerId,
           json.encode(
@@ -233,7 +248,8 @@ class MarkerAnimator extends TickerProvider {
         Point endPoint = points[i + 1]['point'];
 
         // Create AnimationController and Tween for position and rotation
-        _controller[markerId!] = AnimationController(duration: animationDuration, vsync: this);
+        _controller[markerId!] =
+            AnimationController(duration: animationDuration, vsync: this);
         double startRotation = points[i]['rotation'].toDouble();
         double endRotation = points[i + 1]['rotation'].toDouble();
 
@@ -241,8 +257,10 @@ class MarkerAnimator extends TickerProvider {
         endRotation = normalizeRotation(startRotation, endRotation);
 
         _positionAnimation[markerId!] = Tween<Offset>(
-          begin: Offset(startPoint.coordinates[0]!.toDouble(), startPoint.coordinates[1]!.toDouble()),
-          end: Offset(endPoint.coordinates[0]!.toDouble(), endPoint.coordinates[1]!.toDouble()),
+          begin: Offset(startPoint.coordinates[0]!.toDouble(),
+              startPoint.coordinates[1]!.toDouble()),
+          end: Offset(endPoint.coordinates[0]!.toDouble(),
+              endPoint.coordinates[1]!.toDouble()),
         ).animate(
           _controller[markerId]!.drive(CurveTween(curve: positionCurve!)),
         );
@@ -262,21 +280,30 @@ class MarkerAnimator extends TickerProvider {
               "type": "Feature",
               "geometry": {
                 "type": "Point",
-                "coordinates": [_positionAnimation[markerId]!.value.dx, _positionAnimation[markerId]!.value.dy]
+                "coordinates": [
+                  _positionAnimation[markerId]!.value.dx,
+                  _positionAnimation[markerId]!.value.dy
+                ]
               }
             }
           };
 
-          var iconProperties = {"icon-image": iconId, "icon-rotate": _rotationAnimation[markerId]!.value};
+          var iconProperties = {
+            "icon-image": iconId,
+            "icon-rotate": _rotationAnimation[markerId]!.value
+          };
 
           // Update the marker's position and rotation on the map
-          await mapboxMap.style.setStyleSourceProperties(sourceId, json.encode(source));
-          await mapboxMap.style.setStyleLayerProperties(layerId, json.encode(iconProperties));
+          await mapboxMap.style
+              .setStyleSourceProperties(sourceId, json.encode(source));
+          await mapboxMap.style
+              .setStyleLayerProperties(layerId, json.encode(iconProperties));
         });
 
         // Start the animation
         await _controller[markerId]!.forward();
-        _controller[markerId]!.dispose(); // Dispose the controller after each iteration
+        _controller[markerId]!
+            .dispose(); // Dispose the controller after each iteration
       }
       markerPoints[markerId]!.clear();
     } on Exception catch (_) {
