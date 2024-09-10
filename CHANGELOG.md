@@ -29,3 +29,7 @@
 # 0.0.8
 
 - Package rename
+
+# 0.0.9
+
+- Minor updates
