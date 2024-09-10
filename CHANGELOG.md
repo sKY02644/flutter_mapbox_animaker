@@ -9,3 +9,7 @@
 # 0.0.3
 
 - Change animation rotation/position curve
+
+# 0.0.4
+
+- Removed image width and height params
