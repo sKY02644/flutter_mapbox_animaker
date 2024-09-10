@@ -78,7 +78,7 @@ class MarkerAnimator extends TickerProvider {
   ///
   /// - [markerId]: A unique identifier for the marker.
   /// - [markerImage]: The path to the image file to be used as the marker icon.
-  /// - [data]: A list of position and rotation data for the marker animation.
+  /// - [data]: A list of position and rotation data for the marker animation {position: [double, double], rotation: double}[].
   /// - [interval]: (Optional) Time interval between animation frames.
   /// - [imageWidth]: (Optional) Width of the marker image.
   /// - [imageHeight]: (Optional) Height of the marker image.

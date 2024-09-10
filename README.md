@@ -11,33 +11,26 @@ This package allows smooth animation of markers on a Mapbox map by adding and mo
 - Customize marker properties such as size, opacity, and rotation.
 - Easily remove marker markers from the map.
 
+### Note
+This package only animate the marker's changes. Mapbox configuration is out of the scope of this package. So, before trying this package to ensure that you have properly configured your Mapbox map and have a basic understanding of how to add markers to the map.
+
+
 ## Installation
 
 To use this package, add the following dependencies to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  mapbox_maps_flutter: ^1.0.0
+  flutter_mapbox_animaker: ^0.0.1
   <your_other_dependencies>
 ```
 
-## Usage
-
-### 1. Initialize the `MarkerAnimator`:
-
-```dart
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
-import 'marker_animator.dart';  // Import the MarkerAnimator class
-
-final mapboxMap = MapboxMap(<your_mapbox_initialization>);
-final markerAnimator = MarkerAnimator(mapboxMap);
-```
-
-### 2. Add a Marker(s):
+### 1. Add a Marker(s):
 
 You can add a marker(s) and pass the marker's movement data as follows:
 
 ```dart
+final markerAnimator = MarkerAnimator(mapboxMap);
 markerAnimator.addMarkerPoint(
   'markerId123',
   'assets/marker_icon.png',  // Path to your marker image
@@ -56,7 +49,7 @@ markerAnimator.addMarkerPoint(
 );
 ```
 
-### 3. Remove a Marker Marker:
+### 2. Remove a Marker Marker:
 
 To remove a marker marker from the map:
 
@@ -64,7 +57,7 @@ To remove a marker marker from the map:
 await markerAnimator.removeMarker();
 ```
 
-### 4. Customize Marker Properties:
+### 3. Customize Marker Properties:
 
 You can pass custom properties for the marker:
 
@@ -84,7 +77,7 @@ markerAnimator.addMarkerPoint(
 );
 ```
 
-### 5. Marker Style Properties
+### 4. Marker Style Properties
 
 The properties should follow the [Mapbox Style Specification](https://docs.mapbox.com/mapbox-gl-js/style-spec/layers/#type) for symbol layers. These properties allow you to control aspects like icon size, opacity, rotation, anchor position, and more.
 
