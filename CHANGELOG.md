@@ -33,3 +33,7 @@
 # 0.0.9
 
 - Minor updates
+
+# 0.0.10
+
+- Removed animation rotation/position curve
